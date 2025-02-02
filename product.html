@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Page</title>
+  <link rel="stylesheet" href="styles/product.css">
+</head>
+<body>
+  <header>
+    <h1>My Online Store</h1>
+    <nav class="breadcrumb">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="category1.html">Category 1</a></li>
+        <li><span>Product 1</span></li>
+      </ul>
+    </nav>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="category1.html">Category 1</a></li>
+        <li><a href="category2.html">Category 2</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="product-details">
+      <img src="images/product1-full.jpg" alt="Product 1">
+      <h1>Product 1</h1>
+      <p>This is a detailed description of Product 1. It is a high-quality product with amazing features.</p>
+      <p>$19.99</p>
+      <button class="add-to-cart">Add to Cart</button>
+    </section>
+
+    <div class="shopping-list">
+      <h2>Shopping List</h2>
+      <ul id="shopping-list-items">
+        <!-- Shopping list items will be added dynamically -->
+      </ul>
+      <button class="checkout">Checkout</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 My Online Store</p>
+  </footer>
+
+  <script src="scripts/product.js"></script>
+</body>
+</html>
