@@ -1,47 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Category 2</title>
-  <link rel="stylesheet" href="styles/main.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category 2</title>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-  <header>
-    <h1>My Online Store</h1>
-    <nav class="breadcrumb">
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><span>Category 2</span></li>
-      </ul>
-    </nav>
-    <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="category1.html">Category 1</a></li>
-        <li><a href="category2.html">Category 2</a></li>
-      </ul>
-    </nav>
-  </header>
+    <header>
+        <h1>My Online Store</h1>
+        <nav class="breadcrumb">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><span>Category 2</span></li>
+            </ul>
+        </nav>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="category1.html">Category 1</a></li>
+                <li><a href="category2.html">Category 2</a></li>
+            </ul>
+        </nav>
+    </header>
 
-  <main>
-    <section class="product-list">
-      <!-- Products for Category 2 will be dynamically added here -->
-    </section>
+    <main>
+        <section class="product-list">
+            <!-- Products for Category 2 will be dynamically added here -->
+        </section>
+    </main>
 
-    <aside class="shopping-list">
-      <h2>Shopping List</h2>
-      <ul id="shopping-list-items">
-        <!-- Shopping list items will be added dynamically -->
-      </ul>
-      <button class="checkout">Checkout</button>
-    </aside>
-  </main>
+    <footer>
+        <p>&copy; 2025 My Online Store</p>
+    </footer>
 
-  <footer>
-    <p>&copy; 2023 My Online Store</p>
-  </footer>
+    <div class="shopping-cart-container">
+        <div class="shopping-cart-text">Shopping Cart</div>
+        <aside class="shopping-list">
+            <h2>Shopping List</h2>
+            <ul id="shopping-list-items">
+                <!-- Shopping list items will be added dynamically -->
+            </ul>
+            <button class="checkout">Checkout</button>
+        </aside>
+    </div>
 
-  <script src="scripts/main.js"></script>
+    <script src="scripts/main.js"></script>
+    <script>
+        // Set the category parameter to "category2"
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('category', 'category2');
+        history.replaceState(null, '', '?' + urlParams.toString());
+    </script>
 </body>
 </html>
