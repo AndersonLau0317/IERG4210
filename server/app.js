@@ -12,8 +12,11 @@ const storage = multer.diskStorage({
         cb(null, 'public/images/products');
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        // Get next product ID from database
+        db.get('SELECT MAX(pid) as maxPid FROM products', (err, row) => {
+            const nextPid = (row.maxPid || 0) + 1;
+            cb(null, `product${nextPid}${path.extname(file.originalname)}`);
+        });
     }
 });
 
@@ -50,15 +53,17 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     const file = req.file;
 
     try {
+        const originalName = file.filename;
+        const thumbnailName = 'thumb_' + originalName;
+        
         // Generate thumbnail
-        const thumbnailName = 'thumb_' + file.filename;
         await sharp(file.path)
             .resize(200, 200)
             .toFile(path.join('public/images/products', thumbnailName));
 
         db.run(
             'INSERT INTO products (name, price, description, catid, image_original, image_thumbnail) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, price, description, catid, file.filename, thumbnailName],
+            [name, price, description, catid, originalName, thumbnailName],
             function(err) {
                 if (err) return res.status(500).json({ error: err.message });
                 res.json({ id: this.lastID });
