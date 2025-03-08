@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node test/test.js",
-    "deploy": "gh-pages -d ."
+    "deploy": "gh-pages -d . -r https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/AndersonLau0317/IERG4210.git"
   },
   "repository": {
     "type": "git",
