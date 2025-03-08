@@ -1,4 +1,4 @@
-name: Node.js CI and Deploy
+name: Node.js CI
 
 on:
   push:
@@ -14,9 +14,6 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
 
-    outputs:
-      node-version: ${{ matrix.node-version }}
-
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -25,7 +22,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm install
     - run: npm install express multer sqlite3 sharp
-
+    
   deploy:
     needs: build
     runs-on: ubuntu-latest
