@@ -39,7 +39,7 @@ jobs:
     - name: Configure Git
       run: |
         git config --global user.email "andersonlau@gmail.com"
-        git config --global user.name "Anderson Lau"
+        git config --global user.name "AndersonLau0317"
     - run: npm run deploy
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
