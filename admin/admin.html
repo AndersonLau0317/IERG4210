@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    
+    <section id="categories">
+        <h2>Manage Categories</h2>
+        <form id="category-form">
+            <input type="hidden" name="catid" id="category-id">
+            <div>
+                <label for="category-name">Category Name:</label>
+                <input type="text" id="category-name" name="name" required>
+            </div>
+            <button type="submit">Add Category</button>
+        </form>
+        <div id="categories-list"></div>
+    </section>
+
+    <section id="products">
+        <h2>Manage Products</h2>
+        <form id="product-form" enctype="multipart/form-data">
+            <input type="hidden" name="pid" id="product-id">
+            <div>
+                <label for="product-category">Category:</label>
+                <select id="product-category" name="catid" required></select>
+            </div>
+            <div>
+                <label for="product-name">Product Name:</label>
+                <input type="text" id="product-name" name="name" required>
+            </div>
+            <div>
+                <label for="product-price">Price:</label>
+                <input type="number" id="product-price" name="price" step="0.01" required>
+            </div>
+            <div>
+                <label for="product-description">Description:</label>
+                <textarea id="product-description" name="description" required></textarea>
+            </div>
+            <div>
+                <label for="product-image">Image:</label>
+                <input type="file" id="product-image" name="image" accept="image/jpeg,image/png,image/gif">
+            </div>
+            <button type="submit">Add Product</button>
+        </form>
+        <div id="products-list"></div>
+    </section>
+
+    <script src="admin.js"></script>
+</body>
+</html>
