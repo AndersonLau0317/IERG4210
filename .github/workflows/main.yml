@@ -36,6 +36,10 @@ jobs:
       with:
         node-version: ${{ needs.build.outputs['node-version'] }}
     - run: npm install
+    - name: Configure Git
+      run: |
+        git config --global user.email "andersonlau@gmail.com"
+        git config --global user.name "Anderson Lau"
     - run: npm run deploy
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
