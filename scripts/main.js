@@ -4,18 +4,30 @@ async function loadProducts() {
     const currentCategory = urlParams.get("category");
     
     try {
-        const response = await fetch(`/api/products${currentCategory ? `?catid=${currentCategory}` : ''}`);
+        // Convert category1/category2 to actual category IDs
+        let catid;
+        if (currentCategory === 'category1') catid = 1;
+        else if (currentCategory === 'category2') catid = 2;
+        
+        const response = await fetch(`/api/products${catid ? `?catid=${catid}` : ''}`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        
         const products = await response.json();
         
         const productList = document.querySelector(".product-list");
+        if (products.length === 0) {
+            productList.innerHTML = '<p>No products found in this category.</p>';
+            return;
+        }
+        
         productList.innerHTML = products.map(product => `
             <div class="product">
                 <a href="product.html?id=${product.pid}">
-                    <img src="/images/products/${product.image_thumbnail}" alt="${product.name}">
+                    <img src="/images/products/${product.image_thumbnail || 'placeholder.jpg'}" alt="${product.name}">
                     <h3>${product.name}</h3>
                 </a>
-                <p>$${product.price}</p>
-                <button class="add-to-cart">Add to Cart</button>
+                <p>$${product.price.toFixed(2)}</p>
+                <button class="add-to-cart" data-pid="${product.pid}">Add to Cart</button>
             </div>
         `).join('');
         
@@ -37,7 +49,9 @@ async function loadProducts() {
             });
         });
     } catch (err) {
-        console.error(err);
+        console.error('Error loading products:', err);
+        document.querySelector(".product-list").innerHTML = 
+            '<p>Error loading products. Please try again later.</p>';
     }
 }
 

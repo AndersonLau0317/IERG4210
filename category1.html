@@ -47,9 +47,9 @@
 
     <script src="scripts/main.js"></script>
     <script>
-        // Set the category parameter to "category1"
+        // Set the correct category ID
         const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('category', 'category1');
+        urlParams.set('category', 'category1'); // This matches the first category in the database
         history.replaceState(null, '', '?' + urlParams.toString());
     </script>
 </body>

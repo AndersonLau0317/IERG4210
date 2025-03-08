@@ -7,6 +7,9 @@ const path = require('path');
 const app = express();
 const db = new sqlite3.Database('database/shop.db');
 
+app.use(express.static('public'));
+app.use(express.json());
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/images/products');
@@ -48,6 +51,19 @@ app.post('/api/categories', (req, res) => {
 });
 
 // Products API
+app.get('/api/products', (req, res) => {
+    const catid = req.query.catid;
+    const query = catid 
+        ? 'SELECT * FROM products WHERE catid = ?'
+        : 'SELECT * FROM products';
+    const params = catid ? [catid] : [];
+    
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 app.post('/api/products', upload.single('image'), async (req, res) => {
     const { name, price, description, catid } = req.body;
     const file = req.file;
