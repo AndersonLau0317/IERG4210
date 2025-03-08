@@ -14,13 +14,24 @@ CREATE TABLE products (
     FOREIGN KEY (catid) REFERENCES categories(catid)
 );
 
--- Insert sample data
+-- Clear existing data and add more sample categories
+DELETE FROM products;
+DELETE FROM categories;
+
 INSERT INTO categories (name) VALUES 
 ('Electronics'),
-('Books');
+('Books'),
+('Clothing'),
+('Home & Garden');
 
 INSERT INTO products (catid, name, price, description) VALUES 
-(1, 'Smartphone', 599.99, 'A powerful smartphone with great features'),
-(1, 'Laptop', 999.99, 'High-performance laptop for work and gaming'),
-(2, 'Programming Guide', 49.99, 'Learn programming from scratch'),
-(2, 'Science Fiction', 19.99, 'Best-selling sci-fi novel');
+(1, 'Smartphone XL', 599.99, 'Latest smartphone with 6.5" display and 5G capability'),
+(1, 'Wireless Earbuds', 129.99, 'True wireless earbuds with noise cancellation'),
+(1, 'Smart Watch', 199.99, 'Fitness tracker with heart rate monitoring'),
+(2, 'Web Development Guide', 49.99, 'Complete guide to modern web development'),
+(2, 'Mystery Novel', 19.99, 'Bestselling mystery thriller'),
+(2, 'Cookbook', 29.99, 'International recipes collection'),
+(3, 'Designer T-Shirt', 24.99, 'Cotton blend casual t-shirt'),
+(3, 'Denim Jeans', 59.99, 'Classic fit blue jeans'),
+(4, 'Indoor Plant', 34.99, 'Low-maintenance decorative plant'),
+(4, 'LED Lamp', 45.99, 'Modern desk lamp with adjustable brightness');
