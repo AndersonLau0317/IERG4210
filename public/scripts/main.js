@@ -27,6 +27,10 @@ class ShoppingCart {
             const item = new CartItem(pid);
             await item.fetchDetails();
             this.items.set(pid, item);
+        } else {
+            // Increment quantity if item already exists
+            const item = this.items.get(pid);
+            item.quantity += 1;
         }
         this.saveToStorage();
         this.render();
@@ -101,16 +105,16 @@ class ShoppingCart {
             li.querySelector('.increment').onclick = () => 
                 this.updateQuantity(item.pid, item.quantity + 1);
             li.querySelector('.decrement').onclick = () => 
-                this.updateQuantity(item.pid, item.quantity - 1);
+                this.updateQuantity(item.pid, Math.max(1, item.quantity - 1));
             li.querySelector('input').onchange = (e) => 
-                this.updateQuantity(item.pid, parseInt(e.target.value));
+                this.updateQuantity(item.pid, Math.max(1, parseInt(e.target.value) || 1));
             li.querySelector('.remove-item').onclick = () => 
                 this.removeItem(item.pid);
 
             list.appendChild(li);
         }
 
-        // Fix total calculation by removing extra parentheses
+        // Show total
         const total = document.createElement('li');
         total.className = 'cart-total';
         total.innerHTML = `<strong>Total: $${this.calculateTotal().toFixed(2)}</strong>`;
