@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node test/test.js"
+    "test": "node test/test.js",
+    "start": "node server/app.js"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/AndersonLau0317/IERG4210/issues"
   },
-  "homepage": "https://github.com/AndersonLau0317/IERG4210#readme",
+  "homepage": "http://localhost:3000",
   "dependencies": {
     "express": "^4.21.2",
     "multer": "^1.4.5-lts.1",

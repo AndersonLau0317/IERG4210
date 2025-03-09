@@ -34,6 +34,11 @@ const upload = multer({
     }
 });
 
+// Serve the main HTML file for the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
 // Categories API
 app.get('/api/categories', (req, res) => {
     db.all('SELECT * FROM categories', (err, rows) => {
@@ -61,6 +66,15 @@ app.get('/api/products', (req, res) => {
     db.all(query, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
+    });
+});
+
+app.get('/api/products/:pid', (req, res) => {
+    const pid = parseInt(req.params.pid);
+    db.get('SELECT * FROM products WHERE pid = ?', [pid], (err, product) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+        res.json(product);
     });
 });
 

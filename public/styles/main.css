@@ -140,3 +140,22 @@ nav ul {
 .shopping-cart-container:hover .shopping-list {
     display: block;
 }
+
+/* Add new styles for shopping cart */
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quantity-controls input {
+    width: 50px;
+    text-align: center;
+}
+
+.cart-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+}
