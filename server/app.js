@@ -8,6 +8,7 @@ const app = express();
 const db = new sqlite3.Database('database/shop.db');
 
 app.use(express.static('public'));
+app.use('/admin', express.static('admin')); // Add this line to serve admin files
 app.use(express.json());
 
 const storage = multer.diskStorage({
@@ -36,7 +37,7 @@ const upload = multer({
 
 // Serve the main HTML file for the root URL
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Categories API
@@ -52,6 +53,30 @@ app.post('/api/categories', (req, res) => {
     db.run('INSERT INTO categories (name) VALUES (?)', [name], function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ id: this.lastID });
+    });
+});
+
+app.delete('/api/categories/:catid', (req, res) => {
+    const catid = parseInt(req.params.catid);
+    
+    // Enable foreign key support
+    db.run('PRAGMA foreign_keys = ON', (err) => {
+        if (err) {
+            console.error('Error enabling foreign keys:', err);
+            return res.status(500).json({ error: 'Database configuration error' });
+        }
+        
+        // Delete category (products will be deleted automatically via CASCADE)
+        db.run('DELETE FROM categories WHERE catid = ?', [catid], function(err) {
+            if (err) {
+                console.error('Error deleting category:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Category not found' });
+            }
+            res.json({ success: true });
+        });
     });
 });
 
@@ -102,6 +127,14 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+app.delete('/api/products/:pid', (req, res) => {
+    const pid = parseInt(req.params.pid);
+    db.run('DELETE FROM products WHERE pid = ?', [pid], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
 });
 
 app.listen(3000, () => {

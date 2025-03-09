@@ -128,13 +128,9 @@ const cart = new ShoppingCart();
 // Load products from API and set up event listeners
 async function loadProducts() {
     const urlParams = new URLSearchParams(window.location.search);
-    const currentCategory = urlParams.get("category");
+    const catid = urlParams.get("catid"); // Get catid directly instead of 'category'
     
     try {
-        let catid;
-        if (currentCategory === 'category1') catid = 1;
-        else if (currentCategory === 'category2') catid = 2;
-        
         const response = await fetch(`/api/products${catid ? `?catid=${catid}` : ''}`);
         if (!response.ok) throw new Error('Failed to fetch products');
         
@@ -148,7 +144,7 @@ async function loadProducts() {
         
         productList.innerHTML = products.map(product => `
             <div class="product">
-                <a href="product.html?id=${product.pid}">
+                <a href="product.html?id=${product.pid}&catid=${product.catid}">
                     <img src="/images/products/${product.image_thumbnail || 'placeholder.jpg'}" alt="${product.name}">
                     <h3>${product.name}</h3>
                 </a>
@@ -172,8 +168,41 @@ async function loadProducts() {
     }
 }
 
+// Load categories and update navigation
+async function loadCategoryNav() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const navList = document.querySelector('nav:not(.breadcrumb) ul');
+        navList.innerHTML = `
+            <li><a href="index.html">Home</a></li>
+            ${categories.map(cat => 
+                `<li><a href="category.html?catid=${cat.catid}">${cat.name}</a></li>`
+            ).join('')}
+        `;
+
+        // Update breadcrumb if on category page
+        const urlParams = new URLSearchParams(window.location.search);
+        const catid = urlParams.get('catid');
+        if (catid) {
+            const category = categories.find(c => c.catid === parseInt(catid));
+            if (category) {
+                const breadcrumb = document.querySelector('.breadcrumb ul');
+                breadcrumb.innerHTML = `
+                    <li><a href="index.html">Home</a></li>
+                    <li><span>${category.name}</span></li>
+                `;
+            }
+        }
+    } catch (err) {
+        console.error('Error loading categories:', err);
+    }
+}
+
 // Load products and shopping cart when the page loads
 window.addEventListener('DOMContentLoaded', () => {
+    loadCategoryNav();
     loadProducts();
     cart.restoreFromStorage();
 });

@@ -11,7 +11,7 @@ CREATE TABLE products (
     description TEXT,
     image_original VARCHAR(255),
     image_thumbnail VARCHAR(255),
-    FOREIGN KEY (catid) REFERENCES categories(catid)
+    FOREIGN KEY (catid) REFERENCES categories(catid) ON DELETE CASCADE
 );
 
 -- Clear existing data and add more sample categories

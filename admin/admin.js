@@ -6,11 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('category-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        const name = formData.get('name');
         
         try {
             const response = await fetch('/api/categories', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name })
             });
             if (!response.ok) throw new Error('Failed to add category');
             loadCategories();
@@ -80,5 +84,45 @@ async function loadProducts() {
         ).join('');
     } catch (err) {
         console.error(err);
+    }
+}
+
+async function deleteCategory(catid) {
+    if (!confirm('Are you sure you want to delete this category and all its products?')) return;
+    
+    try {
+        const response = await fetch(`/api/categories/${catid}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to delete category');
+        }
+        
+        await loadCategories();
+        await loadProducts();
+    } catch (err) {
+        console.error('Delete category error:', err);
+        alert(err.message || 'Error deleting category');
+    }
+}
+
+async function deleteProduct(pid) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+        const response = await fetch(`/api/products/${pid}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Failed to delete product');
+        loadProducts();
+    } catch (err) {
+        console.error(err);
+        alert('Error deleting product');
     }
 }
