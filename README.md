@@ -50,16 +50,4 @@ sqlite3 database/shop.db < database/schema.sql
 sqlite3 database/shop.db
 ```
 
-## Development
 
-- The server runs on port 3000 by default
-- Product images are stored in `public/images/products/`
-- API endpoints are available at:
-  - GET /api/categories - List all categories
-  - GET /api/products - List all products
-  - GET /api/products?catid={id} - List products in category
-  - GET /api/products/{pid} - Get specific product
-
-## Note
-
-Make sure to create a `.env` file if needed and update the `.gitignore` file to exclude sensitive information.
