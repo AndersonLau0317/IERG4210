@@ -1,5 +1,6 @@
-# IERG4210
-Static Website URL: https://andersonlau0317.github.io/IERG4210/
+## URL
+http://54.253.38.227:3000
+http://54.253.38.227:3000/admin/admin.html
 
 ## Prerequisites
 
