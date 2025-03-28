@@ -470,24 +470,42 @@ app.get('/admin/panel', adminPageProtection, (req, res) => {
 app.use('/admin/static', express.static(path.join(__dirname, '..', 'admin')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// HTTP to HTTPS redirect
+// HTTPS Configuration
+const httpsOptions = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem'),
+    minVersion: 'TLSv1.2',
+    ciphers: [
+        "ECDHE-ECDSA-AES128-GCM-SHA256",
+        "ECDHE-RSA-AES128-GCM-SHA256",
+        "ECDHE-ECDSA-AES256-GCM-SHA384",
+        "ECDHE-RSA-AES256-GCM-SHA384"
+    ].join(':')
+};
+
+// Create both HTTP and HTTPS servers
+const httpServer = app.listen(3000, () => {
+    console.log('HTTP Server running on port 3000');
+});
+
+const httpsServer = https.createServer(httpsOptions, app).listen(3001, () => {
+    console.log('HTTPS Server running on port 3001');
+});
+
+// Force HTTPS redirect
 app.use((req, res, next) => {
     if (!req.secure) {
-        return res.redirect(`https://${req.headers.host}${req.url}`);
+        return res.redirect(`https://${req.hostname}${req.url}`);
     }
     next();
 });
 
-const httpsOptions = {
-    cert: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem')
-};
-
-// Create HTTPS server
-https.createServer(httpsOptions, app).listen(3001, () => {
-    console.log('HTTPS Server running on port 3001');
-});
-
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+// Debug route
+app.get('/test', (req, res) => {
+    res.json({
+        secure: req.secure,
+        protocol: req.protocol,
+        hostname: req.hostname,
+        url: req.url
+    });
 });
