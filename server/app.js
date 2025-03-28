@@ -9,6 +9,8 @@ const SQLiteStore = require('connect-sqlite3')(session);
 const rateLimit = require('express-rate-limit');
 const csrf = require('csrf');
 const tokens = new csrf();
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
 const db = new sqlite3.Database('database/shop.db');
@@ -397,6 +399,20 @@ const adminPageProtection = (req, res, next) => {
 app.get('/admin/admin.html', adminPageProtection);
 app.use('/admin/api/*', adminPageProtection);
 
+// Add these routes before your existing routes
+app.use('/admin/static', express.static(path.join(__dirname, '..', 'admin')));
+app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
+
+// Add specific route for login page
+app.get('/admin/login', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'admin', 'login.html'));
+});
+
+// Add specific route for admin panel
+app.get('/admin/panel', adminPageProtection, (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'admin', 'admin.html'));
+});
+
 // Change password route
 app.post('/api/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
@@ -453,6 +469,24 @@ app.get('/admin/panel', adminPageProtection, (req, res) => {
 // Serve admin static files
 app.use('/admin/static', express.static(path.join(__dirname, '..', 'admin')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// HTTP to HTTPS redirect
+app.use((req, res, next) => {
+    if (!req.secure) {
+        return res.redirect(`https://${req.headers.host}${req.url}`);
+    }
+    next();
+});
+
+const httpsOptions = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem')
+};
+
+// Create HTTPS server
+https.createServer(httpsOptions, app).listen(3001, () => {
+    console.log('HTTPS Server running on port 3001');
+});
 
 app.listen(3000, () => {
     console.log('Server running on port 3000');
