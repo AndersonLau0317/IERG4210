@@ -478,9 +478,14 @@ const httpsOptions = {
     minVersion: 'TLSv1.2'
 };
 
-// Create both HTTP and HTTPS servers
-const httpServer = http.createServer(app);
-const httpsServer = https.createServer(httpsOptions, app);
+// Create servers with specific host binding
+const httpServer = http.createServer(app).listen(3000, '0.0.0.0', () => {
+    console.log('HTTP Server running on port 3000');
+});
+
+const httpsServer = https.createServer(httpsOptions, app).listen(3001, '0.0.0.0', () => {
+    console.log('HTTPS Server running on port 3001');
+});
 
 // Add HTTPS redirect middleware before routes
 app.use((req, res, next) => {
@@ -488,15 +493,6 @@ app.use((req, res, next) => {
         return res.redirect(`https://${req.hostname}${req.url}`);
     }
     next();
-});
-
-// Start both servers
-httpServer.listen(3000, () => {
-    console.log('HTTP Server running on port 3000');
-});
-
-httpsServer.listen(3001, () => {
-    console.log('HTTPS Server running on port 3001');
 });
 
 // Debug route
