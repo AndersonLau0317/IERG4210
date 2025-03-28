@@ -5,8 +5,32 @@ body {
     margin: 0 auto;
 }
 
-h1, h2 {
+header {
+    position: relative;
+    margin-bottom: 40px;
+    padding-top: 60px; /* Add space for auth section */
+    text-align: center;
+}
+
+h1 {
     color: #333;
+    margin: 0;
+    font-size: 2em;
+}
+
+h2 {
+    color: #333;
+}
+
+.auth-section {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 100;
 }
 
 section {

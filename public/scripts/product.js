@@ -1,78 +1,82 @@
-// Sample product data
-const products = [
-    { id: 1, name: "Product 1", price: "$19.99", category: "category1", image: "images/product1-thumbnail.jpg" },
-    { id: 2, name: "Product 2", price: "$29.99", category: "category2", image: "images/product2-thumbnail.jpg" },
-];
-
-// Get the current product ID from the URL
-const urlParams = new URLSearchParams(window.location.search);
-const productId = parseInt(urlParams.get("id"), 10);
-
-// Find the product by ID
-const product = products.find(p => p.id === productId);
-
-// Display product details
-const productDetails = document.querySelector(".product-details");
-if (product) {
-    productDetails.innerHTML = `
-        <img src="${product.image}" alt="${product.name}">
-        <h1>${product.name}</h1>
-        <p>This is a detailed description of ${product.name}. It is a high-quality product with amazing features.</p>
-        <p>${product.price}</p>
-        <button class="add-to-cart">Add to Cart</button>
-    `;
-}
-
-// Load shopping list from localStorage
-function loadShoppingList() {
-    const shoppingList = JSON.parse(localStorage.getItem('shoppingList')) || [];
-    const shoppingListItems = document.getElementById('shopping-list-items');
-    shoppingListItems.innerHTML = '';
-    shoppingList.forEach(item => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-        <span>${item.name}</span>
-        <input type="number" value="${item.quantity}" min="1">
-        <button class="remove-item">Remove</button>
-        `;
-        shoppingListItems.appendChild(listItem);
-    });
-}
-
-// Save shopping list to localStorage
-function saveShoppingList() {
-    const shoppingListItems = document.querySelectorAll('#shopping-list-items li');
-    const shoppingList = [];
-    shoppingListItems.forEach(item => {
-        const name = item.querySelector('span').textContent;
-        const quantity = item.querySelector('input').value;
-        shoppingList.push({ name, quantity });
-    });
-    localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
-}
-
-// Add to Cart functionality
-document.querySelector('.add-to-cart').addEventListener('click', () => {
-    const productName = product.name;
-    const productPrice = product.price;
-
-    const listItem = document.createElement('li');
-    listItem.innerHTML = `
-    <span>${productName}</span>
-    <input type="number" value="1" min="1">
-    <button class="remove-item">Remove</button>
-    `;
-    document.getElementById('shopping-list-items').appendChild(listItem);
-    saveShoppingList();
-});
-
-// Remove item from shopping list
-document.addEventListener('click', event => {
-    if (event.target.classList.contains('remove-item')) {
-        event.target.closest('li').remove();
-        saveShoppingList();
+class CartItem {
+    constructor(pid, quantity = 1) {
+        this.pid = pid;
+        this.quantity = quantity;
+        this.price = 0;
+        this.name = '';
     }
-});
 
-// Load the shopping list when the page loads
-window.addEventListener('load', loadShoppingList);
+    async fetchDetails() {
+        const response = await fetch(`/api/products/${this.pid}`);
+        if (!response.ok) throw new Error('Failed to fetch product details');
+        const product = await response.json();
+        this.name = product.name;
+        this.price = product.price;
+        return this;
+    }
+}
+
+class ShoppingCart {
+    constructor() {
+        this.items = new Map();
+        this.restoreFromStorage();
+    }
+
+    // ...existing cart methods from main.js...
+}
+
+// Initialize cart
+const cart = new ShoppingCart();
+
+// Load product details
+async function loadProductDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pid = parseInt(urlParams.get('id'));
+    const catid = parseInt(urlParams.get('catid'));
+
+    try {
+        // Fetch product details
+        const response = await fetch(`/api/products/${pid}`);
+        if (!response.ok) throw new Error('Failed to fetch product');
+        const product = await response.json();
+
+        // Fetch category details
+        const catResponse = await fetch('/api/categories');
+        const categories = await catResponse.json();
+        const category = categories.find(c => c.catid === catid);
+
+        // Update breadcrumb
+        const breadcrumb = document.querySelector('.breadcrumb ul');
+        breadcrumb.innerHTML = `
+            <li><a href="index.html">Home</a></li>
+            <li><a href="category.html?catid=${catid}">${category?.name || 'Category'}</a></li>
+            <li><span>${product.name}</span></li>
+        `;
+
+        // Update product details
+        const productDetails = document.querySelector('.product-details');
+        productDetails.innerHTML = `
+            <img src="/images/products/${product.image_original}" alt="${product.name}">
+            <h1>${product.name}</h1>
+            <p>${product.description}</p>
+            <p>$${product.price.toFixed(2)}</p>
+            <button class="add-to-cart" data-pid="${product.pid}">Add to Cart</button>
+        `;
+
+        // Add event listener to Add to Cart button
+        document.querySelector('.add-to-cart').addEventListener('click', async () => {
+            await cart.addItem(product.pid);
+        });
+
+    } catch (err) {
+        console.error('Error loading product:', err);
+        document.querySelector('.product-details').innerHTML = 
+            '<p>Error loading product details. Please try again later.</p>';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadProductDetails();
+    cart.restoreFromStorage();
+});

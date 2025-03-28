@@ -14,9 +14,18 @@ CREATE TABLE products (
     FOREIGN KEY (catid) REFERENCES categories(catid) ON DELETE CASCADE
 );
 
--- Clear existing data and add more sample categories
+CREATE TABLE users (
+    userid INTEGER PRIMARY KEY AUTOINCREMENT,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    salt VARCHAR(64) NOT NULL,
+    is_admin BOOLEAN NOT NULL DEFAULT 0
+);
+
+-- Clear existing data
 DELETE FROM products;
 DELETE FROM categories;
+DELETE FROM users;
 
 INSERT INTO categories (name) VALUES 
 ('Electronics'),
@@ -35,3 +44,8 @@ INSERT INTO products (catid, name, price, description, image_original, image_thu
 (3, 'Denim Jeans', 59.99, 'Classic fit blue jeans', 'product8.jpg', 'thumb_product8.jpg'),
 (4, 'Indoor Plant', 34.99, 'Low-maintenance decorative plant', 'product9.jpg', 'thumb_product9.jpg'),
 (4, 'LED Lamp', 45.99, 'Modern desk lamp with adjustable brightness', 'product10.jpg', 'thumb_product10.jpg');
+
+-- Add sample users with salted passwords
+INSERT INTO users (email, password, salt, is_admin) VALUES 
+('admin@example.com', 'ef2076e91e0cf2894a21c46eb001eadb16990323727e0cccabca863ecac4de01', 'admin_salt_123', 1),
+('user@example.com', '21e76ac144e0649872f9cc04c320d6b83f1ae7c023f5d7f82dde3bbaacd60681', 'user_salt_123', 0);

@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Admin Panel</title>
-    <link rel="stylesheet" href="./admin.css">
+    <link rel="stylesheet" href="/admin/static/admin.css">
+    <link rel="stylesheet" href="/styles/auth.css">
 </head>
 <body>
-    <h1>Admin Panel</h1>
+    <header>
+        <h1>Admin Panel</h1>
+        <!-- The auth-section will be inserted here by auth.js -->
+    </header>
     
     <section id="categories">
         <h2>Manage Categories</h2>
@@ -50,6 +58,7 @@
         <div id="products-list"></div>
     </section>
 
-    <script src="admin.js"></script>
+    <script src="/scripts/auth.js"></script>
+    <script src="/admin/static/admin.js"></script>
 </body>
 </html>
