@@ -473,23 +473,16 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // HTTPS Configuration
 const httpsOptions = {
     cert: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem'),
-    minVersion: 'TLSv1.2',
-    ciphers: [
-        "ECDHE-ECDSA-AES128-GCM-SHA256",
-        "ECDHE-RSA-AES128-GCM-SHA256",
-        "ECDHE-ECDSA-AES256-GCM-SHA384",
-        "ECDHE-RSA-AES256-GCM-SHA384"
-    ].join(':')
+    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem')
 };
+
+https.createServer(httpsOptions, app).listen(3001, () => {
+    console.log('HTTPS Server running on port 3001');
+});
 
 // Create both HTTP and HTTPS servers
 const httpServer = app.listen(3000, () => {
     console.log('HTTP Server running on port 3000');
-});
-
-const httpsServer = https.createServer(httpsOptions, app).listen(3001, () => {
-    console.log('HTTPS Server running on port 3001');
 });
 
 // Force HTTPS redirect
