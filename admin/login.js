@@ -13,22 +13,26 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     try {
         // Get CSRF token
         const csrfToken = await getCsrfToken();
+        console.log('CSRF Token:', csrfToken); // Debug log
 
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken
+                'X-CSRF-Token': csrfToken  // Make sure header name matches
             },
+            credentials: 'include', // Important for cookies
             body: JSON.stringify({ email, password })
         });
 
+        const data = await response.json();
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Login failed');
+            throw new Error(data.error || 'Login failed');
         }
 
-        const data = await response.json();
+        // Store the CSRF token
+        localStorage.setItem('csrfToken', data.csrfToken);
+
         if (data.is_admin) {
             window.location.href = '/admin/panel';
         } else {

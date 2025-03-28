@@ -1,3 +1,27 @@
+// Add at the beginning of the file
+function addCSRFToRequest(request) {
+    const csrfToken = localStorage.getItem('csrfToken');
+    if (csrfToken && request.method !== 'GET') {
+        request.headers['X-CSRF-Token'] = csrfToken;
+    }
+    return request;
+}
+
+// Intercept all fetch requests
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+    let [resource, config] = args;
+    config = config || {};
+    config.headers = config.headers || {};
+    
+    // Add CSRF token to non-GET requests
+    if (config.method !== 'GET') {
+        config = addCSRFToRequest(config);
+    }
+    
+    return originalFetch(resource, config);
+};
+
 async function getCsrfToken() {
     const response = await fetch('/api/csrf-token');
     const data = await response.json();

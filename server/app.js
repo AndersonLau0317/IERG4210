@@ -35,22 +35,21 @@ app.use((req, res, next) => {
     next();
 });
 
-// First initialize session middleware
+// Update the session configuration
 app.use(session({
     store: new SQLiteStore({
         db: 'database/sessions.db',
-        concurrentDB: true
+        concurrentDB: true,
     }),
-    secret: crypto.randomBytes(32).toString('hex'), // Strong random secret
-    name: 'sessionId', // Change from default 'connect.sid'
+    secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+    name: 'sessionId',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production', // Force HTTPS in production
-        httpOnly: true, // Prevent XSS
-        sameSite: 'strict', // Prevent CSRF
-        maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
-        path: '/' // Explicitly set path
+        secure: false, // Set to false temporarily for testing
+        httpOnly: true,
+        sameSite: 'lax', // Change to 'lax' from 'strict'
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
 
@@ -70,9 +69,21 @@ const sessionTimeout = (req, res, next) => {
     next();
 };
 
-// Then add CSRF protection
+// Update CSRF protection middleware
 const csrfProtection = (req, res, next) => {
-    if (req.method === 'GET') return next();
+    // Skip CSRF for these paths
+    const skipPaths = ['/api/csrf-token', '/api/login'];
+    if (skipPaths.includes(req.path) || req.method === 'GET') {
+        return next();
+    }
+
+    console.log('Debug CSRF:', {  // Add debug logging
+        token: req.headers['x-csrf-token'],
+        secret: !!req.session.csrfSecret,
+        path: req.path,
+        method: req.method,
+        sessionID: req.sessionID
+    });
 
     const token = req.headers['x-csrf-token'];
     if (!token || !req.session.csrfSecret) {
@@ -222,19 +233,16 @@ app.post('/api/login', loginLimiter, async (req, res) => {
         req.session.regenerate((err) => {
             if (err) return res.status(500).json({ error: 'Session error' });
 
-            // Set user data in session
             req.session.user = {
                 userid: user.userid,
                 email: user.email,
-                is_admin: user.is_admin,
-                created: Date.now()
+                is_admin: user.is_admin
             };
 
-            // Generate CSRF token
+            // Generate new CSRF token
             req.session.csrfSecret = tokens.secretSync();
             const csrfToken = tokens.create(req.session.csrfSecret);
 
-            // Save session
             req.session.save((err) => {
                 if (err) return res.status(500).json({ error: 'Session save error' });
                 res.json({ 
