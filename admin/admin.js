@@ -1,29 +1,31 @@
-async function checkAuth() {
-    try {
-        const response = await fetch('/api/user');
-        const user = await response.json();
-        
-        if (!user.is_admin) {
-            window.location.href = '/admin/login.html';
-            return false;
-        }
-        
-        document.body.insertAdjacentHTML('afterbegin', 
-            `<div style="text-align: right; padding: 10px;">
-                Logged in as: ${user.email}
-                <button onclick="logout()">Logout</button>
-            </div>`
-        );
-        return true;
-    } catch (err) {
-        window.location.href = '/admin/login.html';
-        return false;
-    }
+async function getCsrfToken() {
+    const response = await fetch('/api/csrf-token');
+    const data = await response.json();
+    return data.token;
 }
 
 async function logout() {
-    await fetch('/api/logout', { method: 'POST' });
-    window.location.href = '/admin/login.html';
+    try {
+        // Get CSRF token first
+        const csrfToken = await getCsrfToken();
+
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            }
+        });
+        
+        if (response.ok) {
+            window.location.href = '/admin/login';
+        } else {
+            throw new Error('Logout failed');
+        }
+    } catch (err) {
+        console.error('Error during logout:', err);
+        alert('Logout failed. Please try again.');
+    }
 }
 
 // Add session check function
@@ -33,12 +35,12 @@ async function validateAdminSession() {
         const user = await response.json();
         
         if (!user.is_admin) {
-            window.location.replace('/admin/login.html');
+            window.location.replace('/admin/login');
             return false;
         }
         return true;
     } catch (err) {
-        window.location.replace('/admin/login.html');
+        window.location.replace('/admin/login');
         return false;
     }
 }
