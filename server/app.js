@@ -10,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 const csrf = require('csrf');
 const tokens = new csrf();
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 
 const app = express();
@@ -470,27 +471,32 @@ app.get('/admin/panel', adminPageProtection, (req, res) => {
 app.use('/admin/static', express.static(path.join(__dirname, '..', 'admin')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// HTTPS Configuration
+// SSL Configuration
 const httpsOptions = {
     cert: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/s16.ierg4210.ie.cuhk.edu.hk/privkey.pem'),
+    minVersion: 'TLSv1.2'
 };
 
-https.createServer(httpsOptions, app).listen(3001, () => {
-    console.log('HTTPS Server running on port 3001');
-});
-
 // Create both HTTP and HTTPS servers
-const httpServer = app.listen(3000, () => {
-    console.log('HTTP Server running on port 3000');
-});
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(httpsOptions, app);
 
-// Force HTTPS redirect
+// Add HTTPS redirect middleware before routes
 app.use((req, res, next) => {
-    if (!req.secure) {
+    if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
         return res.redirect(`https://${req.hostname}${req.url}`);
     }
     next();
+});
+
+// Start both servers
+httpServer.listen(3000, () => {
+    console.log('HTTP Server running on port 3000');
+});
+
+httpsServer.listen(3001, () => {
+    console.log('HTTPS Server running on port 3001');
 });
 
 // Debug route
