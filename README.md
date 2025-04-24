@@ -1,12 +1,10 @@
 ## URL
-http://54.253.38.227:3000
-http://54.253.38.227:3000/admin/admin.html
+https://s16.ierg4210.ie.cuhk.edu.hk/
 
 ## Prerequisites
 
 - Node.js (v18.x or v20.x)
 - NPM (comes with Node.js)
-- SQLite3
 
 ## Setup Instructions
 
@@ -27,27 +25,22 @@ npm install
 sqlite3 database/shop.db < database/schema.sql
 ```
 
-## Running the Application
-
-1. Start the server:
+4. Start the server:
 ```bash
 npm start
 ```
 
-2. Access the application:
+5. Access the application:
 - Main website: http://localhost:3000
 - Admin panel: http://localhost:3000/admin/admin.html
 
-## Database Management
+## Notes:
+Create a .env file:
 
-- The SQLite database file is located at `database/shop.db`
-- To reset the database with sample data:
-```bash
-sqlite3 database/shop.db < database/schema.sql
-```
-- To access the database directly:
-```bash
-sqlite3 database/shop.db
-```
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+NODE_ENV=production
 
+Change the NODE_ENV to development to only host a http
 
