@@ -45,8 +45,12 @@ NODE_ENV=production
 Change the NODE_ENV to development to only host a http
 
 ## Default Login:
+
 Email: user@example.com
+
 Password: user
+
 Email: admin@example.com
+
 Password: admin 
 
