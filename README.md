@@ -37,9 +37,9 @@ npm start
 ## Notes:
 Create a .env file:
 
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
+STRIPE_SECRET_KEY=XXX
+STRIPE_PUBLISHABLE_KEY=XXX
+STRIPE_WEBHOOK_SECRET=XXX
 NODE_ENV=production
 
 Change the NODE_ENV to development to only host a http
