@@ -19,6 +19,7 @@ cd IERG4210
 2. Install dependencies:
 ```bash
 npm install
+npm install express sqlite3 dotenv express-session connect-sqlite3 csurf bcryptjs stripe helmet express-rate-limit
 ```
 
 3. Initialize the database:
