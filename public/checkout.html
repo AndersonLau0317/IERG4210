@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <script>
+        const STRIPE_PUBLIC_KEY = "pk_test_51RHK5zQDjA7OvGdyO4nJPWBZVZyTLS6uh49xheKLuurpIcizOvc5E6kuo82RdmIHETkMJv3aQ6NueLmkfz8JfkFf00ekm1OglR";
+    </script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <div class="checkout-container">
+        <h2>Your Cart</h2>
+        <ul id="cart-products-list"></ul>
+        <div id="cart-total"></div>
+        <div id="error-message"></div>
+        <form id="payment-form">
+            <div id="payment-element"></div>
+            <button id="submit">
+                <div class="spinner hidden" id="spinner"></div>
+                <span id="button-text">Pay now</span>
+            </button>
+        </form>
+    </div>
+    <script src="/scripts/main.js"></script>
+    <script src="/scripts/checkout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = new ShoppingCart();
+            cart.restoreFromStorage().then(() => {
+                // Display cart products
+                const list = document.getElementById('cart-products-list');
+                const totalDiv = document.getElementById('cart-total');
+                if (cart.items.size === 0) {
+                    list.innerHTML = '<li>Your cart is empty.</li>';
+                    totalDiv.textContent = '';
+                } else {
+                    list.innerHTML = Array.from(cart.items.values()).map(item => `
+                        <li>
+                            <span>${item.name}</span> &times; <span>${item.quantity}</span> — $${(item.price * item.quantity).toFixed(2)}
+                        </li>
+                    `).join('');
+                    totalDiv.innerHTML = `<strong>Total: $${cart.calculateTotal().toFixed(2)}</strong>`;
+                }
+                // Initialize Stripe checkout handler
+                window.checkoutHandler = new CheckoutHandler(cart);
+            });
+        });
+    </script>
+</body>
+</html>

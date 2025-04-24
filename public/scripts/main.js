@@ -86,8 +86,9 @@ class ShoppingCart {
 
     render() {
         const list = document.getElementById('shopping-list-items');
+        if (!list) return; // Prevent error on pages without cart
         list.innerHTML = '';
-        
+
         for (const item of this.items.values()) {
             const li = document.createElement('li');
             li.innerHTML = `
@@ -102,13 +103,13 @@ class ShoppingCart {
             `;
 
             // Fix event listener bindings
-            li.querySelector('.increment').onclick = () => 
+            li.querySelector('.increment').onclick = () =>
                 this.updateQuantity(item.pid, item.quantity + 1);
-            li.querySelector('.decrement').onclick = () => 
+            li.querySelector('.decrement').onclick = () =>
                 this.updateQuantity(item.pid, Math.max(1, item.quantity - 1));
-            li.querySelector('input').onchange = (e) => 
+            li.querySelector('input').onchange = (e) =>
                 this.updateQuantity(item.pid, Math.max(1, parseInt(e.target.value) || 1));
-            li.querySelector('.remove-item').onclick = () => 
+            li.querySelector('.remove-item').onclick = () =>
                 this.removeItem(item.pid);
 
             list.appendChild(li);
@@ -129,19 +130,21 @@ const cart = new ShoppingCart();
 async function loadProducts() {
     const urlParams = new URLSearchParams(window.location.search);
     const catid = urlParams.get("catid"); // Get catid directly instead of 'category'
-    
+
     try {
         const response = await fetch(`/api/products${catid ? `?catid=${catid}` : ''}`);
         if (!response.ok) throw new Error('Failed to fetch products');
-        
+
         const products = await response.json();
-        
+
         const productList = document.querySelector(".product-list");
+        if (!productList) return; // Prevent error on pages without product list
+
         if (products.length === 0) {
             productList.innerHTML = '<p>No products found in this category.</p>';
             return;
         }
-        
+
         productList.innerHTML = products.map(product => `
             <div class="product">
                 <a href="product.html?id=${product.pid}&catid=${product.catid}">
@@ -163,8 +166,11 @@ async function loadProducts() {
         });
     } catch (err) {
         console.error('Error loading products:', err);
-        document.querySelector(".product-list").innerHTML = 
-            '<p>Error loading products. Please try again later.</p>';
+        const productList = document.querySelector(".product-list");
+        if (productList) {
+            productList.innerHTML =
+                '<p>Error loading products. Please try again later.</p>';
+        }
     }
 }
 
@@ -173,11 +179,12 @@ async function loadCategoryNav() {
     try {
         const response = await fetch('/api/categories');
         const categories = await response.json();
-        
+
         const navList = document.querySelector('nav:not(.breadcrumb) ul');
+        if (!navList) return; // Prevent error on pages without nav
         navList.innerHTML = `
             <li><a href="index.html">Home</a></li>
-            ${categories.map(cat => 
+            ${categories.map(cat =>
                 `<li><a href="category.html?catid=${cat.catid}">${cat.name}</a></li>`
             ).join('')}
         `;
@@ -189,10 +196,12 @@ async function loadCategoryNav() {
             const category = categories.find(c => c.catid === parseInt(catid));
             if (category) {
                 const breadcrumb = document.querySelector('.breadcrumb ul');
-                breadcrumb.innerHTML = `
-                    <li><a href="index.html">Home</a></li>
-                    <li><span>${category.name}</span></li>
-                `;
+                if (breadcrumb) {
+                    breadcrumb.innerHTML = `
+                        <li><a href="index.html">Home</a></li>
+                        <li><span>${category.name}</span></li>
+                    `;
+                }
             }
         }
     } catch (err) {
@@ -205,4 +214,13 @@ window.addEventListener('DOMContentLoaded', () => {
     loadCategoryNav();
     loadProducts();
     cart.restoreFromStorage();
+
+    // Add checkout button handler
+    const checkoutBtn = document.querySelector('.checkout');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = '/checkout.html';
+        });
+    }
 });

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <div class="order-confirmation">
+        <h1>Thank you for your order!</h1>
+        <p>Your order has been processed successfully.</p>
+        <p>Order ID: <span id="order-id"></span></p>
+        <div id="order-items">
+            <h2>Ordered Products</h2>
+            <ul id="order-products-list"></ul>
+        </div>
+        <a href="/" class="button">Return to Shop</a>
+        <p id="redirect-msg">Redirecting to shop page in <span id="redirect-timer">5</span> seconds...</p>
+    </div>
+    <script>
+        // Clear cart on order confirmation page load
+        localStorage.removeItem('shoppingCart');
+    </script>
+    <script src="/scripts/main.js"></script>
+    <script>
+        // Also clear in-memory cart if user navigates back
+        if (window.ShoppingCart) {
+            const cart = new ShoppingCart();
+            cart.items.clear();
+            cart.saveToStorage();
+        }
+    </script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('order');
+        document.getElementById('order-id').textContent = orderId;
+
+        // Fetch and display order items
+        fetch(`/api/orders/${orderId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.items || data.items.length === 0) {
+                    document.getElementById('order-products-list').innerHTML = '<li>No items found.</li>';
+                    return;
+                }
+                document.getElementById('order-products-list').innerHTML = data.items.map(item => `
+                    <li>
+                        <img src="/images/products/${item.image_thumbnail || 'placeholder.jpg'}" alt="${item.name}" style="width:50px;height:50px;vertical-align:middle;">
+                        <span>${item.name}</span> &times; <span>${item.quantity}</span> — $${(item.price * item.quantity).toFixed(2)}
+                    </li>
+                `).join('');
+            })
+            .catch(() => {
+                document.getElementById('order-products-list').innerHTML = '<li>Error loading order items.</li>';
+            });
+
+        // Redirect to shop after 5 seconds with countdown
+        let seconds = 5;
+        const timerSpan = document.getElementById('redirect-timer');
+        const interval = setInterval(() => {
+            seconds--;
+            timerSpan.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = '/';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

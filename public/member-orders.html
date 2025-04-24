@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Orders</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <h1>My Recent Orders</h1>
+    <div id="orders-list"></div>
+    <a href="/" class="button">Back to Shop</a>
+    <script>
+        fetch('/api/orders')
+            .then(res => res.json())
+            .then(orders => {
+                const list = document.getElementById('orders-list');
+                if (!orders.length) {
+                    list.innerHTML = '<p>No orders found.</p>';
+                    return;
+                }
+                list.innerHTML = orders.map(order => `
+                    <div class="order-item">
+                        <h3>Order ID: ${order.orderid}</h3>
+                        <p>Status: ${order.status}</p>
+                        <p>Total: $${order.total}</p>
+                        <p>Created: ${new Date(order.created_at).toLocaleString()}</p>
+                        <ul>
+                            ${order.items && order.items.length > 0 ? order.items.map(item => `
+                                <li>
+                                    ${item.name} &times; ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
+                                </li>
+                            `).join('') : '<li>No items</li>'}
+                        </ul>
+                    </div>
+                `).join('');
+            });
+    </script>
+</body>
+</html>

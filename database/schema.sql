@@ -22,6 +22,27 @@ CREATE TABLE users (
     is_admin BOOLEAN NOT NULL DEFAULT 0
 );
 
+CREATE TABLE orders (
+    orderid TEXT PRIMARY KEY,
+    userid INTEGER,
+    total DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_intent_id TEXT UNIQUE,
+    digest TEXT NOT NULL,
+    currency VARCHAR(3) DEFAULT 'HKD',
+    FOREIGN KEY (userid) REFERENCES users(userid)
+);
+
+CREATE TABLE order_items (
+    orderid TEXT,
+    pid INTEGER,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (orderid) REFERENCES orders(orderid),
+    FOREIGN KEY (pid) REFERENCES products(pid)
+);
+
 -- Clear existing data
 DELETE FROM products;
 DELETE FROM categories;
@@ -47,5 +68,5 @@ INSERT INTO products (catid, name, price, description, image_original, image_thu
 
 -- Add sample users with salted passwords
 INSERT INTO users (email, password, salt, is_admin) VALUES 
-('admin@example.com', 'ef2076e91e0cf2894a21c46eb001eadb16990323727e0cccabca863ecac4de01', 'admin_salt_123', 1),
-('user@example.com', '21e76ac144e0649872f9cc04c320d6b83f1ae7c023f5d7f82dde3bbaacd60681', 'user_salt_123', 0);
+('admin@example.com', '0a8f9b35a35de3edb7a54981cf27385ad5ffe3ec56ca3904abe9c1f9ee17b41e', 'admin_salt_123', 1),
+('user@example.com', 'b10732c886b5a4fc7badef08fb0b3a25bd80716fa2195ee9fa22e387a09876a6', 'user_salt_123', 0);

@@ -4,11 +4,21 @@ async function getCsrfToken() {
     return data.token;
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('error-message').textContent = '';
+    document.getElementById('error-message').style.display = 'none';
+});
+
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const email = formData.get('email');
     const password = formData.get('password');
+
+    // Hide error message before attempting login
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = '';
+    errorDiv.style.display = 'none';
 
     try {
         // Get CSRF token
@@ -39,7 +49,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             window.location.href = '/';
         }
     } catch (err) {
-        document.getElementById('error-message').textContent = err.message;
-        document.getElementById('error-message').style.display = 'block';
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
     }
 });

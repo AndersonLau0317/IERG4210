@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize admin features
     loadCategories();
     loadProducts();
+    loadOrders(); // Load orders on initial page load
 
     // Category form submission
     document.getElementById('category-form').addEventListener('submit', async (e) => {
@@ -160,6 +161,31 @@ async function loadProducts() {
         ).join('');
     } catch (err) {
         console.error(err);
+    }
+}
+
+async function loadOrders() {
+    try {
+        const response = await fetch('/api/orders');
+        const orders = await response.json();
+        const list = document.getElementById('orders-list');
+        list.innerHTML = orders.map(order => `
+            <div class="order-item">
+                <h3>Order ID: ${order.orderid}</h3>
+                <p>Status: ${order.status}</p>
+                <p>Total: $${order.total}</p>
+                <p>Created: ${new Date(order.created_at).toLocaleString()}</p>
+                <ul>
+                    ${order.items && order.items.length > 0 ? order.items.map(item => `
+                        <li>
+                            ${item.name} &times; ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}
+                        </li>
+                    `).join('') : '<li>No items</li>'}
+                </ul>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading orders:', err);
     }
 }
 

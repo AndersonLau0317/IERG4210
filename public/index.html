@@ -6,6 +6,30 @@
     <title>Main Page</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="/styles/auth.css">
+    <style>
+        #my-orders-btn-container {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            z-index: 1000;
+        }
+        #my-orders-btn {
+            display: none;
+            background: #5682a8;
+            color: #fff;
+            font-size: 1em;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        #my-orders-btn:hover {
+            background: #005fa3;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,17 +46,17 @@
             </ul>
         </nav>
     </header>
-
+    <div id="my-orders-btn-container">
+        <button id="my-orders-btn" class="button">My Orders</button>
+    </div>
     <main>
         <section class="product-list">
             <!-- Products will be dynamically added here -->
         </section>
     </main>
-
     <footer>
         <p>&copy; 2025v1.1 My Online Store</p>
     </footer>
-
     <div class="shopping-cart-container">
         <div class="shopping-cart-text">Shopping Cart</div>
         <aside class="shopping-list">
@@ -43,7 +67,18 @@
             <button class="checkout">Checkout</button>
         </aside>
     </div>
-
+    <script>
+        fetch('/api/user')
+            .then(res => res.json())
+            .then(user => {
+                if (user && user.userid && !user.is_admin) {
+                    document.getElementById('my-orders-btn').style.display = 'inline-block';
+                }
+            });
+        document.getElementById('my-orders-btn').onclick = function() {
+            window.location.href = '/member-orders.html';
+        };
+    </script>
     <script src="scripts/main.js"></script>
     <script src="/scripts/auth.js"></script>
 </body>
