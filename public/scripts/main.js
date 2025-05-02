@@ -224,3 +224,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// At the end of main.js, add:
+window.CartItem = CartItem;
+window.ShoppingCart = ShoppingCart;

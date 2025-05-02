@@ -497,12 +497,18 @@ app.get('/api/products/:pid', (req, res) => {
 });
 
 app.post('/api/products', requireAuth, requireAdmin, upload.single('image'), async (req, res) => {
+    console.log('Received product data:', req.body);
+    console.log('Received product file:', req.file);
     const name = sanitizeInput(req.body.name);
     const description = sanitizeInput(req.body.description);
     const { price, catid } = req.body;
     const file = req.file;
 
     try {
+        if (!file) {
+            return res.status(400).json({ error: 'No image file uploaded' });
+        }
+
         const originalName = file.filename;
         const thumbnailName = 'thumb_' + originalName;
         
@@ -520,6 +526,7 @@ app.post('/api/products', requireAuth, requireAdmin, upload.single('image'), asy
             }
         );
     } catch (err) {
+        console.error('Error adding product:', err);
         res.status(500).json({ error: err.message });
     }
 });

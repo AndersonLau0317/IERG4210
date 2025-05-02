@@ -37,20 +37,6 @@ nav ul {
         max-width: 100%;
     }
 
-.shopping-cart-container {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    text-align: right;
-}
-
-.shopping-cart-text {
-    background-color: #fff;
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-}
-
 .shopping-list {
     position: absolute;
     top: 30px;
@@ -89,7 +75,3 @@ nav ul {
         .shopping-list .checkout:hover {
             background-color: #218838;
         }
-
-.shopping-cart-container:hover .shopping-list {
-    display: block;
-}
