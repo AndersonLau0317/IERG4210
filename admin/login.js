@@ -53,3 +53,54 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         errorDiv.style.display = 'block';
     }
 });
+
+document.getElementById('show-register-form').addEventListener('click', () => {
+    document.querySelector('.login-form').style.display = 'none';
+    document.querySelector('.register-form').style.display = 'block';
+});
+
+document.getElementById('show-login-form').addEventListener('click', () => {
+    document.querySelector('.register-form').style.display = 'none';
+    document.querySelector('.login-form').style.display = 'block';
+});
+
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+
+    const errorDiv = document.getElementById('register-error-message');
+    errorDiv.textContent = '';
+    errorDiv.style.display = 'none';
+
+    if (password !== confirmPassword) {
+        errorDiv.textContent = 'Passwords do not match.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    try {
+        const csrfToken = await getCsrfToken();
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Registration failed');
+        }
+
+        alert('Registration successful! Please log in.');
+        document.getElementById('show-login-form').click();
+    } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+    }
+});

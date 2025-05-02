@@ -801,3 +801,47 @@ async function cleanupFailedOrders() {
 
 // Run cleanup periodically
 setInterval(cleanupFailedOrders, 60 * 60 * 1000); // Every hour
+
+app.post('/api/register', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Input sanitization
+    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedPassword = password.trim();
+
+    if (!sanitizedEmail || !sanitizedPassword) {
+        return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+        return res.status(400).json({ error: 'Invalid email format.' });
+    }
+
+    if (sanitizedPassword.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+    }
+
+    try {
+        // Check if the email already exists
+        db.get('SELECT email FROM users WHERE email = ?', [sanitizedEmail], (err, user) => {
+            if (err) return res.status(500).json({ error: 'Database error.' });
+            if (user) return res.status(400).json({ error: 'Email is already registered.' });
+
+            // Hash the password
+            const salt = crypto.randomBytes(16).toString('hex');
+            const hashedPassword = hashPassword(sanitizedPassword, salt);
+
+            // Insert the new user into the database
+            db.run(
+                'INSERT INTO users (email, password, salt, is_admin) VALUES (?, ?, ?, ?)',
+                [sanitizedEmail, hashedPassword, salt, 0],
+                function (err) {
+                    if (err) return res.status(500).json({ error: 'Database error.' });
+                    res.json({ success: true });
+                }
+            );
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
