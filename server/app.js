@@ -17,6 +17,8 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const db = new sqlite3.Database('database/shop.db');
 
+app.disable('x-powered-by');
+
 app.use(express.static('public'));
 
 // Add these headers middleware before your routes
