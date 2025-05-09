@@ -6,11 +6,11 @@
     <title>Product Details</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/product.css">
-    <link rel="stylesheet" href="/styles/auth.css">
+    <link rel="stylesheet" href="styles/auth.css">
 </head>
 <body>
     <header>
-        <!-- The auth-section will be inserted here by auth.js -->
+        <div class="auth-section"></div>
         <h1>My Online Store</h1>
         <nav class="breadcrumb">
             <ul>
@@ -18,37 +18,55 @@
                 <li><span>Loading...</span></li>
             </ul>
         </nav>
-        <nav>
-            <ul>
+        <nav class="category-nav">
+            <ul id="category-list">
                 <!-- Categories will be dynamically added here -->
             </ul>
         </nav>
     </header>
 
     <main>
-        <section class="product-details">
-            <!-- Product details will be loaded dynamically -->
-            <p>Loading product details...</p>
-        </section>
+        <div class="product-container">
+            <div class="product-image">
+                <img id="product-img" src="" alt="Product Image">
+            </div>
+            <div class="product-info">
+                <h1 id="product-name">Loading...</h1>
+                <p id="product-description">Loading...</p>
+                <div class="price-section">
+                    <span class="price-label">Price:</span>
+                    <span id="product-price">$0.00</span>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2025 My Online Store</p>
     </footer>
 
-    <div class="shopping-cart-container">
-        <div class="shopping-cart-text">Shopping Cart</div>
-        <aside class="shopping-list">
-            <h2>Shopping List</h2>
-            <ul id="shopping-list-items">
-                <!-- Shopping list items will be added dynamically -->
-            </ul>
-            <button class="checkout">Checkout</button>
-        </aside>
-    </div>
-
+    <!-- Load scripts in correct order -->
     <script src="scripts/main.js"></script>
+    <script src="scripts/auth.js"></script>
     <script src="scripts/product.js"></script>
-    <script src="/scripts/auth.js"></script>
+    
+    <script>
+        window.onload = function() {
+            console.log('Window loaded');
+            try {
+                if (typeof ProductPage === 'undefined') {
+                    throw new Error('ProductPage class not loaded');
+                }
+                const productPage = new ProductPage();
+                console.log('Product page initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize product page:', error);
+                document.querySelector('.product-info').innerHTML = `
+                    <h1>Error</h1>
+                    <p>Failed to load product page: ${error.message}</p>
+                `;
+            }
+        };
+    </script>
 </body>
 </html>

@@ -94,6 +94,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('product-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        console.log('Product Form Data:', formData); // Add this line
+
+        const imageInput = document.getElementById('product-image');
+        if (imageInput.files.length === 0) {
+            alert('Please select an image file.');
+            return;
+        }
         
         try {
             const csrfToken = await getCsrfToken();
@@ -104,12 +111,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: formData
             });
-            if (!response.ok) throw new Error('Failed to add product');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to add product: ${response.status} ${response.statusText} - ${errorText}`);
+            }
             loadProducts();
             e.target.reset();
         } catch (err) {
             console.error(err);
-            alert('Error adding product');
+            alert(`Error adding product: ${err.message}`);
         }
     });
 });

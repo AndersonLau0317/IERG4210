@@ -1,82 +1,106 @@
-class CartItem {
-    constructor(pid, quantity = 1) {
-        this.pid = pid;
-        this.quantity = quantity;
-        this.price = 0;
-        this.name = '';
-    }
-
-    async fetchDetails() {
-        const response = await fetch(`/api/products/${this.pid}`);
-        if (!response.ok) throw new Error('Failed to fetch product details');
-        const product = await response.json();
-        this.name = product.name;
-        this.price = product.price;
-        return this;
-    }
-}
-
-class ShoppingCart {
+class ProductPage {
     constructor() {
-        this.items = new Map();
-        this.restoreFromStorage();
+        console.log('ProductPage constructor called');
+
+        this.product = null;
+        this.category = null;
+
+        // Load product details immediately
+        this.loadProductDetails();
     }
 
-    // ...existing cart methods from main.js...
-}
+    showLoading() {
+        document.getElementById('product-img').src = '';
+        document.getElementById('product-name').textContent = 'Loading...';
+        document.getElementById('product-description').textContent = 'Loading...';
+        document.getElementById('product-price').textContent = '$0.00';
+    }
 
-// Initialize cart
-const cart = new ShoppingCart();
+    showError(message) {
+        document.getElementById('product-name').textContent = 'Error';
+        document.getElementById('product-description').textContent = message;
+        document.getElementById('product-price').textContent = '';
+        document.getElementById('product-img').src = '';
+    }
 
-// Load product details
-async function loadProductDetails() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const pid = parseInt(urlParams.get('id'));
-    const catid = parseInt(urlParams.get('catid'));
-
-    try {
-        // Fetch product details
-        const response = await fetch(`/api/products/${pid}`);
-        if (!response.ok) throw new Error('Failed to fetch product');
-        const product = await response.json();
-
-        // Fetch category details
-        const catResponse = await fetch('/api/categories');
-        const categories = await catResponse.json();
-        const category = categories.find(c => c.catid === catid);
-
-        // Update breadcrumb
+    updateBreadcrumb() {
         const breadcrumb = document.querySelector('.breadcrumb ul');
-        breadcrumb.innerHTML = `
-            <li><a href="index.html">Home</a></li>
-            <li><a href="category.html?catid=${catid}">${category?.name || 'Category'}</a></li>
-            <li><span>${product.name}</span></li>
-        `;
+        if (breadcrumb && this.category) {
+            breadcrumb.innerHTML = `
+                <li><a href="index.html">Home</a></li>
+                <li><a href="category.html?catid=${this.category.catid}">${this.category.name}</a></li>
+                <li><span>${this.product.name}</span></li>
+            `;
+        }
+    }
 
-        // Update product details
-        const productDetails = document.querySelector('.product-details');
-        productDetails.innerHTML = `
-            <img src="/images/products/${product.image_original}" alt="${product.name}">
-            <h1>${product.name}</h1>
-            <p>${product.description}</p>
-            <p>$${product.price.toFixed(2)}</p>
-            <button class="add-to-cart" data-pid="${product.pid}">Add to Cart</button>
-        `;
+    updateProductDisplay() {
+        const productImg = document.getElementById('product-img');
+        const productName = document.getElementById('product-name');
+        const productDescription = document.getElementById('product-description');
+        const productPrice = document.getElementById('product-price');
 
-        // Add event listener to Add to Cart button
-        document.querySelector('.add-to-cart').addEventListener('click', async () => {
-            await cart.addItem(product.pid);
-        });
+        if (productImg) productImg.src = `/images/products/${this.product.image_original}`;
+        if (productName) productName.textContent = this.product.name;
+        if (productDescription) productDescription.textContent = this.product.description;
+        if (productPrice) productPrice.textContent = `$${this.product.price.toFixed(2)}`;
+    }
 
-    } catch (err) {
-        console.error('Error loading product:', err);
-        document.querySelector('.product-details').innerHTML = 
-            '<p>Error loading product details. Please try again later.</p>';
+    async loadProductDetails() {
+        console.log('Loading product details');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = parseInt(urlParams.get('id'));
+        const catid = parseInt(urlParams.get('catid'));
+
+        console.log('Product ID:', pid);
+        console.log('Category ID:', catid);
+
+        if (!pid || !catid) {
+            this.showError('Product ID and Category ID are required');
+            return;
+        }
+
+        try {
+            this.showLoading();
+
+            // Fetch product details
+            const productResponse = await fetch(`/api/products/${pid}`);
+            if (!productResponse.ok) {
+                throw new Error(`Failed to fetch product: ${productResponse.status}`);
+            }
+            this.product = await productResponse.json();
+
+            // Fetch category details
+            const categoriesResponse = await fetch('/api/categories');
+            if (!categoriesResponse.ok) {
+                throw new Error(`Failed to fetch categories: ${categoriesResponse.status}`);
+            }
+            const categories = await categoriesResponse.json();
+            this.category = categories.find(c => c.catid === catid);
+
+            if (!this.category) {
+                throw new Error('Category not found');
+            }
+
+            // Update UI
+            this.updateBreadcrumb();
+            this.updateProductDisplay();
+
+        } catch (error) {
+            console.error('Error loading product:', error);
+            this.showError(error.message || 'Failed to load product details');
+        }
     }
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadProductDetails();
-    cart.restoreFromStorage();
-});
+// Make ProductPage available globally
+ProductPage.initialize = function() {
+    if (typeof window !== 'undefined') {
+        window.ProductPage = this;
+        console.log('ProductPage class registered globally');
+    }
+};
+
+// Initialize the ProductPage class
+ProductPage.initialize();
